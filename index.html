@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ゲームリザルト集計ツール</title>
+    <style>
+        /* スタイルをここに追加 */
+    </style>
+</head>
+<body>
+    <h1>ゲームリザルト集計ツール</h1>
+    <button id="imgUploadBtn">画像から集計</button>
+    <button id="manualInputBtn">直接入力して集計</button>
+    <div id="output"></div>
+
+    <script>
+        // ボタンのイベントリスナー
+        document.getElementById('imgUploadBtn').addEventListener('click', () => {
+            // 画像アップロード処理
+        });
+
+        document.getElementById('manualInputBtn').addEventListener('click', () => {
+            // 手動入力処理
+        });
+
+        // スコア計算関数
+        function calculateScore(perfect, great, good, bad, miss) {
+            return perfect * 3 + great * 2 + good * 1;
+        }
+
+        // 結果の表示とクリップボードへのコピー
+        function displayResults(results) {
+            let output = results.map(result => `${result.name} ${result.scores.join(' ')} [${result.total}]`).join('\n');
+            document.getElementById('output').innerText = output;
+            navigator.clipboard.writeText(output);
+        }
+    </script>
+</body>
+</html>
