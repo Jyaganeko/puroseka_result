@@ -13,8 +13,15 @@
     <button id="manualInputBtn">直接入力して集計</button>
     <div id="output"></div>
 
-    <input type="file" id="imageInput" style="display:none;" />
-    
+    <input type="file" id="imageInput" accept="image/*" style="display:none;" />
+
+    <div id="playerCountSection" style="display:none;">
+        <h2>集計情報の入力</h2>
+        <input type="number" id="songCount" placeholder="曲数" min="1" />
+        <input type="number" id="playerCount" placeholder="プレイヤー数" min="1" />
+        <button id="setCountsBtn">設定する</button>
+    </div>
+
     <div id="manualInputSection" style="display:none;">
         <h2>スコアを入力</h2>
         <input type="text" id="playerName" placeholder="プレイヤー名" />
@@ -27,13 +34,33 @@
     </div>
 
     <script>
-        // ボタンのイベントリスナー
+        let songCount = 0;
+        let playerCount = 0;
+        let currentPlayer = 0;
+        let currentSong = 0;
+        let results = []; // 全プレイヤーのスコアを保存
+
         document.getElementById('imgUploadBtn').addEventListener('click', () => {
             document.getElementById('imageInput').click();
         });
 
         document.getElementById('manualInputBtn').addEventListener('click', () => {
-            document.getElementById('manualInputSection').style.display = 'block';
+            document.getElementById('playerCountSection').style.display = 'block';
+        });
+
+        document.getElementById('setCountsBtn').addEventListener('click', () => {
+            songCount = parseInt(document.getElementById('songCount').value) || 0;
+            playerCount = parseInt(document.getElementById('playerCount').value) || 0;
+
+            if (songCount > 0 && playerCount > 0) {
+                currentPlayer = 1; // 最初のプレイヤーからスタート
+                currentSong = 1; // 最初の曲からスタート
+                document.getElementById('playerCountSection').style.display = 'none';
+                document.getElementById('manualInputSection').style.display = 'block';
+                alert(`曲数: ${songCount}, プレイヤー数: ${playerCount}`);
+            } else {
+                alert("曲数とプレイヤー数は1以上を入力してください。");
+            }
         });
 
         document.getElementById('submitScoresBtn').addEventListener('click', () => {
@@ -45,11 +72,33 @@
             const miss = parseInt(document.getElementById('miss').value) || 0;
 
             const total = calculateScore(perfect, great, good, bad, miss);
-            const result = { name, scores: [perfect, great, good, bad, miss], total };
-            displayResults([result]);
+
+            // プレイヤーの結果を保存
+            if (!results[currentPlayer - 1]) {
+                results[currentPlayer - 1] = { name, scores: [], total: 0 };
+            }
+            results[currentPlayer - 1].scores.push(total);
+            results[currentPlayer - 1].total += total;
+
+            // 次の曲へ
+            currentSong++;
+
+            if (currentSong > songCount) {
+                currentSong = 1;
+                currentPlayer++;
+
+                // 全プレイヤーのスコアを入力したら結果を表示
+                if (currentPlayer > playerCount) {
+                    displayResults(results);
+                    return;
+                }
+            }
+
+            // 次のプレイヤーまたは曲に移行
+            alert(`次はプレイヤー ${results[currentPlayer - 1].name || currentPlayer} の曲 ${currentSong} のスコアを入力してください`);
 
             // フォームをリセット
-            document.getElementById('playerName').value = '';
+            document.getElementById('playerName').value = currentPlayer <= playerCount ? results[currentPlayer - 1]?.name || '' : '';
             document.getElementById('perfect').value = '';
             document.getElementById('great').value = '';
             document.getElementById('good').value = '';
@@ -64,8 +113,14 @@
 
         // 結果の表示とクリップボードへのコピー
         function displayResults(results) {
+            // 合計スコアでソート
+            results.sort((a, b) => b.total - a.total);
+
+            // 結果をフォーマットして表示
             let output = results.map(result => `${result.name} ${result.scores.join(' ')} [${result.total}]`).join('\n');
             document.getElementById('output').innerText = output;
+
+            // クリップボードにコピー
             navigator.clipboard.writeText(output);
         }
     </script>
