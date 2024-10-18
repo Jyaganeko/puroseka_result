@@ -2,25 +2,59 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ゲームリザルト集計ツール</title>
+    <title>プロセカリザルト集計ツール</title>
     <style>
         /* スタイルをここに追加 */
     </style>
 </head>
 <body>
-    <h1>ゲームリザルト集計ツール</h1>
+    <h1>プロセカリザルト集計ツール</h1>
     <button id="imgUploadBtn">画像から集計</button>
     <button id="manualInputBtn">直接入力して集計</button>
     <div id="output"></div>
 
+    <input type="file" id="imageInput" style="display:none;" />
+    
+    <div id="manualInputSection" style="display:none;">
+        <h2>スコアを入力</h2>
+        <input type="text" id="playerName" placeholder="プレイヤー名" />
+        <input type="number" id="perfect" placeholder="PERFECT" />
+        <input type="number" id="great" placeholder="GREAT" />
+        <input type="number" id="good" placeholder="GOOD" />
+        <input type="number" id="bad" placeholder="BAD" />
+        <input type="number" id="miss" placeholder="MISS" />
+        <button id="submitScoresBtn">スコアを送信</button>
+    </div>
+
     <script>
         // ボタンのイベントリスナー
         document.getElementById('imgUploadBtn').addEventListener('click', () => {
-            // 画像アップロード処理
+            document.getElementById('imageInput').click();
         });
 
         document.getElementById('manualInputBtn').addEventListener('click', () => {
-            // 手動入力処理
+            document.getElementById('manualInputSection').style.display = 'block';
+        });
+
+        document.getElementById('submitScoresBtn').addEventListener('click', () => {
+            const name = document.getElementById('playerName').value;
+            const perfect = parseInt(document.getElementById('perfect').value) || 0;
+            const great = parseInt(document.getElementById('great').value) || 0;
+            const good = parseInt(document.getElementById('good').value) || 0;
+            const bad = parseInt(document.getElementById('bad').value) || 0;
+            const miss = parseInt(document.getElementById('miss').value) || 0;
+
+            const total = calculateScore(perfect, great, good, bad, miss);
+            const result = { name, scores: [perfect, great, good, bad, miss], total };
+            displayResults([result]);
+
+            // フォームをリセット
+            document.getElementById('playerName').value = '';
+            document.getElementById('perfect').value = '';
+            document.getElementById('great').value = '';
+            document.getElementById('good').value = '';
+            document.getElementById('bad').value = '';
+            document.getElementById('miss').value = '';
         });
 
         // スコア計算関数
